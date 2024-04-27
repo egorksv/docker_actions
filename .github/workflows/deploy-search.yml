@@ -26,7 +26,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v3
       with:
         role-to-assume: arn:aws:iam::767398139813:role/default-guvubots-eks-github-role
-        role-session-name: docker-actions-build-${{ github.head_ref || github.ref_name }}
+        role-session-name: docker-actions-build-${{ github.head_ref || github.ref_name }}-${{ github.run_number }}
         aws-region: ${{ env.AWS_REGION }}
 
     - name:  Print current caller identity
