@@ -65,7 +65,7 @@ jobs:
 
     - name:  Extract FluxCD Image Release Tag
       run: |
-        echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json).args['DOCKER_META_VERSION'] }}"
+        echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json)}}"
         echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json).args['DOCKER_META_VERSION'] }}" >> $GITHUB_ENV
 
     - name: Login to docker hub
