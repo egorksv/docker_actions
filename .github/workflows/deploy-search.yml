@@ -29,7 +29,6 @@ jobs:
         #     pattern: '^release\.(?P<branchname>.*)-(?P<buildnumber>\d+)\.(?P<githash>.*)\.(?P<timestamp>\d+)'
         tags: |
           type=ref,enable=true,prefix=release.,suffix=-${{ github.run_number }}.{{sha}}.{{date 'YYYYMMDDHHmmss'}},event=branch
-          type=ref,enable=true,event=pr
           type=raw,value=latest,enable=true
 
     - name: Login to docker hub
@@ -44,7 +43,7 @@ jobs:
         context: "{{defaultContext}}"
         file: ${{ env.DOCKERFILE }}
         push: true
-        tags: ${{ env.REGISTRY_IMAGE }}:latest
+        tags:  ${{ steps.meta.outputs.tags }}
 
     # - name: Install kubectl
     #   uses: azure/setup-kubectl@v2.0
