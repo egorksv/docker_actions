@@ -11,11 +11,28 @@ env:
   REGISTRY_IMAGE: egorksv/busybox
   DOCKERFILE: Dockerfile
   DEPLOYMENT_NAME: busybox
+  AWS_REGION: us-east-1
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: arn:aws:iam::767398139813:role/default-guvubots-eks-github-role
+        role-session-name: docker-actions-build-${{ github.head_ref || github.ref_name }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name:  Print current caller identity
+      run: |
+        aws sts get-caller-identity    
+
     - uses: docker/setup-buildx-action@v2
 
     - name: Docker meta
