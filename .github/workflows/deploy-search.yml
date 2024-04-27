@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY_IMAGE: egorksv/busybox
   DOCKERFILE: Dockerfile
-  DEPLOYMENT_NAME: busybox
+  DEPLOYMENT_NAME: testdev
   AWS_REGION: us-east-1
 
 permissions:
@@ -38,7 +38,6 @@ jobs:
         echo "EKS_CERTIFICATE=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq -r .cluster.certificateAuthority.data)" >> $GITHUB_ENV
         echo "EKS_TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER }} | jq -r .status.token)" >> $GITHUB_ENV
         echo "EKS_HOST=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq -r .cluster.endpoint  | sed -E 's/^\s*.*:\/\///g')" >> $GITHUB_ENV
-        cat $GITHUB_ENV
 
     - name: Validate EKS Access
       uses: actions-hub/kubectl@master
@@ -82,3 +81,28 @@ jobs:
       uses: enflo/curl-action@master
       with:
         curl: ${{ secrets.FLUXCD_WEBHOOK }}
+
+    - name:  Extract FluxCD Image Release Tag
+      run: |
+        echo "FLUXCD_IMAGE_TAG=$(echo ${{ steps.meta.outputs.tags }} | jq -r .target.args.DOCKER_META_VERSION)"
+        echo "FLUXCD_IMAGE_TAG=$(echo ${{ steps.meta.outputs.tags }} | jq -r .target.args.DOCKER_META_VERSION)" >> $GITHUB_ENV
+
+    - name: Ensure Helm Release has been updated with the new version
+      uses: actions-hub/kubectl@master
+      env:
+        KUBE_HOST: ${{ env.EKS_HOST }}
+        KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
+        KUBE_TOKEN: ${{ env.EKS_TOKEN }}
+      with:
+        args: -n ${{env.DEPLOY_NAMESPACE}}  wait --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+
+
+    - name: Ensure Helm Release deployment is ready
+      uses: actions-hub/kubectl@master
+      env:
+        KUBE_HOST: ${{ env.EKS_HOST }}
+        KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
+        KUBE_TOKEN: ${{ env.EKS_TOKEN }}
+      with:
+        args: -n ${{env.DEPLOY_NAMESPACE}}  wait -for=condition=ready helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+#
