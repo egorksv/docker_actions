@@ -45,32 +45,7 @@ jobs:
         push: true
         tags:  ${{ steps.meta.outputs.tags }}
 
-    # - name: Install kubectl
-    #   uses: azure/setup-kubectl@v2.0
-    #   with:
-    #     version: 'v1.24.0' # default is latest stable
-    #   id: install
-
-    # - name: Configure AWS Credentials
-    #   uses: aws-actions/configure-aws-credentials@v1
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: us-east-1
-
-    # - name: Update kube config
-    #   run: aws eks update-kubeconfig --name guvusocial--cluster
-
-    # - name: Restart kubernetes deployment
-    #   run: kubectl rollout restart deployment ${{ env.DEPLOYMENT_NAME }}
-
-    # - name: Install doctl
-    #   uses: digitalocean/action-doctl@v2
-    #   with:
-    #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-    # - name: Save DigitalOcean kubeconfig
-    #   run: doctl kubernetes cluster kubeconfig save guvusocial--cluster
-
-    # - name: Restart kubernetes deployment
-    #   run: kubectl rollout restart deployment ${{ env.DEPLOYMENT_NAME }}
+    - name: curl
+      uses: enflo/curl-action@master
+      with:
+        curl: ${{ secrets.FLUXCD_WEBHOOK }}
