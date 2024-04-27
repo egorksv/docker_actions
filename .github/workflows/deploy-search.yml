@@ -35,9 +35,9 @@ jobs:
 
     - name:  Set up EKS Credentials
       run: |
-        echo "EKS_CERTIFICATE=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq .cluster.certificateAuthority.data)" >> $GITHUB_ENV
-        echo "EKS_TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER }} | jq .status.token)" >> $GITHUB_ENV
-        echo "EKS_HOST=$( aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq .cluster.endpoint  | sed -E 's/^\s*.*:\/\//\"/g' | sed -E 's/\"//g')" >> $GITHUB_ENV
+        echo "EKS_CERTIFICATE=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq -r .cluster.certificateAuthority.data)" >> $GITHUB_ENV
+        echo "EKS_TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER }} | jq -r .status.token)" >> $GITHUB_ENV
+        echo "EKS_HOST=$( aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq -r .cluster.endpoint  | sed -E 's/^\s*.*:\/\//\"/g')" >> $GITHUB_ENV
 
     - name: Validate EKS Access
       uses: actions-hub/kubectl@master
