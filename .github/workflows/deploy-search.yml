@@ -1,0 +1,75 @@
+name: deploy-search
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'aspnetapp/**'
+
+env:
+  REGISTRY_IMAGE: egorksv/busybox
+  DOCKERFILE: Dockerfile
+  DEPLOYMENT_NAME: busybox
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: docker/setup-buildx-action@v2
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        # list of Docker images to use as base name for tags
+        images: |
+          ${{ env.REGISTRY_IMAGE }}
+        # generate Docker tags based on the following events/attributes
+        tags: |
+          type=ref,enable=true,event=branch
+          type=ref,enable=true,event=pr
+
+    - name: Login to docker hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build and push the Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: "{{defaultContext}}"
+        file: ${{ env.DOCKERFILE }}
+        push: true
+        tags: ${{ env.REGISTRY_IMAGE }}:latest
+
+    # - name: Install kubectl
+    #   uses: azure/setup-kubectl@v2.0
+    #   with:
+    #     version: 'v1.24.0' # default is latest stable
+    #   id: install
+
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: us-east-1
+
+    # - name: Update kube config
+    #   run: aws eks update-kubeconfig --name guvusocial--cluster
+
+    # - name: Restart kubernetes deployment
+    #   run: kubectl rollout restart deployment ${{ env.DEPLOYMENT_NAME }}
+
+    # - name: Install doctl
+    #   uses: digitalocean/action-doctl@v2
+    #   with:
+    #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    # - name: Save DigitalOcean kubeconfig
+    #   run: doctl kubernetes cluster kubeconfig save guvusocial--cluster
+
+    # - name: Restart kubernetes deployment
+    #   run: kubectl rollout restart deployment ${{ env.DEPLOYMENT_NAME }}
