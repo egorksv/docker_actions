@@ -33,6 +33,21 @@ jobs:
       run: |
         aws sts get-caller-identity    
 
+    - name:  Set up EKS Credentials
+      run: |
+        echo "EKS_CERTIFICATE=$(aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq .cluster.certificateAuthority.data)" >> $GITHUB_ENV
+        echo "EKS_TOKEN=$(aws eks get-token --cluster-name ${{ secrets.EKS_CLUSTER }} | jq .status.token)" >> $GITHUB_ENV
+        echo "EKS_HOST=$( aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER }} | jq .cluster.endpoint)" >> $GITHUB_ENV
+
+    - name: Validate EKS Access
+      uses: actions-hub/kubectl@master
+      env:
+        KUBE_HOST: ${{ env.EKS_HOST }}
+        KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
+        KUBE_TOKEN: ${{ env.EKS_TOKEN }}
+      with:
+        args: get ns
+
     - uses: docker/setup-buildx-action@v2
 
     - name: Docker meta
