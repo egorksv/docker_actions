@@ -69,6 +69,20 @@ jobs:
         echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version']}}"
         echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}" >> $GITHUB_ENV
 
+    - name:  DEBUG
+      run: |
+        echo XXXX wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+
+
+    - name: XXXX Ensure Helm Release has been updated with the new version
+      uses: actions-hub/kubectl@1.29.4
+      env:
+        KUBE_HOST: ${{ env.EKS_HOST }}
+        KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
+        KUBE_TOKEN: ${{ env.EKS_TOKEN }}
+      with:
+        args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\\.weave\\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+
     - name: Login to docker hub
       uses: docker/login-action@v2
       with:
