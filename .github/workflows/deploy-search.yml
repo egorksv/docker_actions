@@ -69,21 +69,6 @@ jobs:
           echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version']}}"
           echo "FLUXCD_IMAGE_TAG=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}" >> $GITHUB_ENV
 
-      - name: DEBUG
-        run: |
-          echo XXXX wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
-
-
-      - name: XXXX Ensure Helm Release has been updated with the new version
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_HOST: ${{ env.EKS_HOST }}
-          KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
-          KUBE_TOKEN: ${{ env.EKS_TOKEN }}
-        with:
-          #        args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath=\'{.metadata.annotations.metadata\\.weave\\.works/build-version}\'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
-          args: wait -n ${{env.DEPLOY_NAMESPACE}} helmrelease/${{ env.DEPLOYMENT_NAME }} --for=jsonpath={.metadata.annotations.metadata\.weave\.works/build-version}="${{env.FLUXCD_IMAGE_TAG}}"
-
       - name: Login to docker hub
         uses: docker/login-action@v2
         with:
@@ -103,20 +88,16 @@ jobs:
         with:
           curl: ${{ secrets.FLUXCD_WEBHOOK }}
 
-      - name: DEBUG
-        run: |
-          echo XXXX wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
 
-
-      - name: Ensure Helm Release has been updated with the new version
+      - name: XXXX Ensure Helm Release has been updated with the new version
         uses: actions-hub/kubectl@master
         env:
           KUBE_HOST: ${{ env.EKS_HOST }}
           KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
           KUBE_TOKEN: ${{ env.EKS_TOKEN }}
         with:
-          args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\\.weave\\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
-
+          #        args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath=\'{.metadata.annotations.metadata\\.weave\\.works/build-version}\'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+          args: wait -n ${{env.DEPLOY_NAMESPACE}} helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s --for=jsonpath={.metadata.annotations.metadata\.weave\.works/build-version}="${{env.FLUXCD_IMAGE_TAG}}"
 
       - name: Ensure Helm Release deployment is ready
         uses: actions-hub/kubectl@master
@@ -125,5 +106,5 @@ jobs:
           KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
           KUBE_TOKEN: ${{ env.EKS_TOKEN }}
         with:
-          args: wait -n ${{env.DEPLOY_NAMESPACE}} -for=condition=ready helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+          args: wait -n ${{env.DEPLOY_NAMESPACE}} helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s --for=condition=ready
 #
