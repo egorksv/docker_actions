@@ -75,7 +75,7 @@ jobs:
 
 
     - name: XXXX Ensure Helm Release has been updated with the new version
-      uses: actions-hub/kubectl@1.29.4
+      uses: actions-hub/kubectl@master
       env:
         KUBE_HOST: ${{ env.EKS_HOST }}
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
@@ -108,7 +108,7 @@ jobs:
         
 
     - name: Ensure Helm Release has been updated with the new version
-      uses: actions-hub/kubectl@1.29.4
+      uses: actions-hub/kubectl@master
       env:
         KUBE_HOST: ${{ env.EKS_HOST }}
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
@@ -118,7 +118,7 @@ jobs:
 
 
     - name: Ensure Helm Release deployment is ready
-      uses: actions-hub/kubectl@1.29.4
+      uses: actions-hub/kubectl@master
       env:
         KUBE_HOST: ${{ env.EKS_HOST }}
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
