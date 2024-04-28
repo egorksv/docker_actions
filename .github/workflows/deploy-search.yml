@@ -89,7 +89,7 @@ jobs:
           curl: ${{ secrets.FLUXCD_WEBHOOK }}
 
 
-      - name: XXXX Ensure Helm Release has been updated with the new version
+      - name: Ensure Helm Release has been updated with the new version
         uses: actions-hub/kubectl@master
         env:
           KUBE_HOST: ${{ env.EKS_HOST }}
