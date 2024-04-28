@@ -11,6 +11,7 @@ env:
   REGISTRY_IMAGE: egorksv/busybox
   DOCKERFILE: Dockerfile
   DEPLOYMENT_NAME: testdev
+  DEPLOY_NAMESPACE: guvusocial-prod
   AWS_REGION: us-east-1
 
 permissions:
@@ -95,7 +96,7 @@ jobs:
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
         KUBE_TOKEN: ${{ env.EKS_TOKEN }}
       with:
-        args: -n ${{env.DEPLOY_NAMESPACE}}  wait --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+        args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
 
 
     - name: Ensure Helm Release deployment is ready
@@ -105,5 +106,5 @@ jobs:
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
         KUBE_TOKEN: ${{ env.EKS_TOKEN }}
       with:
-        args: -n ${{env.DEPLOY_NAMESPACE}}  wait -for=condition=ready helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+        args: wait -n ${{env.DEPLOY_NAMESPACE}} -for=condition=ready helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
 #
