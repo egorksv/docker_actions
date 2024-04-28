@@ -88,9 +88,13 @@ jobs:
       with:
         curl: ${{ secrets.FLUXCD_WEBHOOK }}
 
+    - name:  DEBUG
+      run: |
+        echo XXXX wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\.weave\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+        
 
     - name: Ensure Helm Release has been updated with the new version
-      uses: actions-hub/kubectl@master
+      uses: actions-hub/kubectl@1.29.4
       env:
         KUBE_HOST: ${{ env.EKS_HOST }}
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
@@ -100,7 +104,7 @@ jobs:
 
 
     - name: Ensure Helm Release deployment is ready
-      uses: actions-hub/kubectl@master
+      uses: actions-hub/kubectl@1.29.4
       env:
         KUBE_HOST: ${{ env.EKS_HOST }}
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
