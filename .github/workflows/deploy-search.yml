@@ -81,7 +81,7 @@ jobs:
         KUBE_CERTIFICATE: ${{ env.EKS_CERTIFICATE }}
         KUBE_TOKEN: ${{ env.EKS_TOKEN }}
       with:
-        args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath='{.metadata.annotations.metadata\\.weave\\.works/build-version}'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
+        args: wait -n ${{env.DEPLOY_NAMESPACE}} --for=jsonpath=\'{.metadata.annotations.metadata\\.weave\\.works/build-version}\'="${{env.FLUXCD_IMAGE_TAG}}" helmrelease/${{ env.DEPLOYMENT_NAME }} --timeout=300s
 
     - name: Login to docker hub
       uses: docker/login-action@v2
